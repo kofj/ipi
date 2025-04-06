@@ -25,4 +25,7 @@ build:
 
 image:
 	@echo -e "${GREEN} build image $(IMAGE):${GIT_VERSION} ${NC}"
-	@docker build -t $(IMAGE):${GIT_VERSION} -f Dockerfile .
+	@docker buildx build --platform linux/amd64 -t $(IMAGE):${GIT_VERSION} -f Dockerfile.linux.amd64 .
+push:
+	@echo -e "${GREEN} push image $(IMAGE):${GIT_VERSION} ${NC}"
+	@docker push $(IMAGE):${GIT_VERSION}

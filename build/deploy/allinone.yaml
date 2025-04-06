@@ -17,7 +17,7 @@ spec:
         app: ipi
     spec:
       containers:
-      - image: ghcr.io/kofj/ipi:v1.0
+      - image: ghcr.io/kofj/ipi:v1.0-1-g46ecd55
         name: ipi
         resources:
           requests:
@@ -56,6 +56,55 @@ spec:
   - group: ""
     kind: Service
 ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-aiv-pub-tls
+  namespace: traefikv3
+spec:
+  secretName: wildcard-aiv-pub-tls # we reference secrets in gateway .io listeners with this
+  duration: 2160h0m0s # 90d
+  renewBefore: 120h0m0s # 5d
+  issuerRef:
+    name: cf-le-dns01-issuer
+    kind: ClusterIssuer
+  commonName: "*.aiv.pub"
+  dnsNames:
+  - "*.aiv.pub"
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: cf-le-dns01-issuer
+  labels:
+    app.kubernetes.io/instance: wildcard-aiv.pub
+  name: wildcard-aiv.pub
+  namespace: traefikv3
+spec:
+  gatewayClassName: traefikv3
+  listeners:
+  # - allowedRoutes:
+  #     namespaces:
+  #       from: Same
+  #   hostname: gw.yhylk.com
+  #   name: web
+  #   port: 80
+  #   protocol: HTTP
+  - allowedRoutes:
+      namespaces:
+        from: All
+    name: websecure
+    port: 8443
+    protocol: HTTPS
+    hostname: "*.aiv.pub"
+    tls:
+      certificateRefs:
+      - group: ""
+        kind: Secret
+        name: wildcard-aiv-pub-tls
+      mode: Terminate
+---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -67,7 +116,7 @@ spec:
   parentRefs:
     - name: play
   hostnames:
-    - "ip.avi.pub"
+    - "ip.aiv.pub"
   rules:
   - matches:
     - path:
@@ -78,5 +127,3 @@ spec:
       port: 80
       namespace: play
       weight: 1
-
-

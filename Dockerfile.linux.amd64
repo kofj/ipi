@@ -1,0 +1,8 @@
+FROM --platform=$TARGETPLATFORM alpine:3.18
+
+WORKDIR /app
+COPY data /app/data
+COPY public /app/public
+COPY templates /app/templates
+COPY _output/linux/amd64/ipi /app/ipi
+CMD "/app/ipi"
