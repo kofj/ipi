@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ipi
+  name: ipi
+  namespace: play
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ipi
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: ipi
+    spec:
+      containers:
+      - image: ghcr.io/kofj/ipi:v1.0
+        name: ipi
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ipi
+  namespace: play
+  labels:
+    app: ipi
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+  selector:
+    app: ipi
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: ipi
+  namespace: play
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: play
+  to:
+  - group: ""
+    kind: Service
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ipi
+  namespace: play
+  labels:
+    app: ipi
+spec:
+  parentRefs:
+    - name: play
+  hostnames:
+    - "ip.avi.pub"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: ipi
+      port: 80
+      namespace: play
+      weight: 1
+
+
