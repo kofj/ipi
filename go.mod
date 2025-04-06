@@ -1,4 +1,4 @@
-module kofj.net/toolz/ip
+module github.com/kofj/ipi
 
 go 1.24.1
 
@@ -7,6 +7,7 @@ require (
 	github.com/mileusna/useragent v1.3.5
 	github.com/oschwald/geoip2-golang v1.11.0
 	github.com/sirupsen/logrus v1.9.3
+	github.com/spf13/pflag v1.0.6
 )
 
 require (

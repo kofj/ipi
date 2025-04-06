@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kofj/ipi/pkg/handlers"
+	"github.com/kofj/ipi/pkg/ipdb"
 	"github.com/sirupsen/logrus"
-	"kofj.net/toolz/ip/pkg/handlers"
-	"kofj.net/toolz/ip/pkg/ipdb"
 )
 
 var router = gin.New()

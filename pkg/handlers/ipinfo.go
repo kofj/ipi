@@ -5,10 +5,10 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kofj/ipi/pkg/ipdb"
+	"github.com/kofj/ipi/pkg/models"
 	"github.com/mileusna/useragent"
 	"github.com/sirupsen/logrus"
-	"kofj.net/toolz/ip/pkg/ipdb"
-	"kofj.net/toolz/ip/pkg/models"
 )
 
 var indexTpl = "index.tmpl"
