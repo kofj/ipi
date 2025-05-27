@@ -17,8 +17,15 @@ spec:
         app: ipi
     spec:
       containers:
-      - image: ghcr.io/kofj/ipi:v1.0-1-g46ecd55
+      - image: ghcr.io/kofj/ipi:v1.1
         name: ipi
+        env:
+        - name: OTEL_OTLP_HTTP_ENDPOINT
+          value: "https://oodev.yhylk.com"
+        - name: OTEL_OTLP_HTTP_AUTH_HEADER
+          value: "basic dXNlcm5hbWU6cGFzc3dvcmQ=" # base64 encoded "username:password", replace with your own
+        - name: OTEL_OTLP_HTTP_STREAM_NAME
+          value: "traefik-otlp"
         resources:
           requests:
             cpu: 100m
@@ -51,7 +58,7 @@ spec:
   from:
   - group: gateway.networking.k8s.io
     kind: HTTPRoute
-    namespace: play
+    namespace: traefikv3
   to:
   - group: ""
     kind: Service
@@ -84,16 +91,16 @@ metadata:
 spec:
   gatewayClassName: traefikv3
   listeners:
-  # - allowedRoutes:
-  #     namespaces:
-  #       from: Same
-  #   hostname: gw.yhylk.com
-  #   name: web
-  #   port: 80
-  #   protocol: HTTP
   - allowedRoutes:
       namespaces:
-        from: All
+        from: Same
+    hostname: "*.aiv.pub"
+    name: web
+    port: 80
+    protocol: HTTP
+  - allowedRoutes:
+      namespaces:
+        from: Same
     name: websecure
     port: 8443
     protocol: HTTPS
@@ -109,12 +116,13 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: ipi
-  namespace: play
+  namespace: traefikv3
   labels:
     app: ipi
 spec:
   parentRefs:
-    - name: play
+    - name: wildcard-aiv.pub
+      namespace: traefikv3
   hostnames:
     - "ip.aiv.pub"
   rules:

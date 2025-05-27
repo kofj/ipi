@@ -1,9 +1,14 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kofj/ipi/pkg/handlers"
 	"github.com/kofj/ipi/pkg/ipdb"
+	"github.com/kofj/ipi/pkg/otel"
 	"github.com/sirupsen/logrus"
 )
 
@@ -11,6 +16,19 @@ var router = gin.New()
 
 func init() {
 	router.LoadHTMLGlob("templates/*")
+
+	var OTEL_OTLP_HTTP_ENDPOINT = os.Getenv("OTEL_OTLP_HTTP_ENDPOINT")
+	var OTEL_OTLP_HTTP_HEADERS = os.Getenv("OTEL_OTLP_HTTP_AUTH_HEADER")
+	var OTEL_OTLP_HTTP_STREAM_NAME = os.Getenv("OTEL_OTLP_HTTP_STREAM_NAME")
+	var tp = otel.InitTracerHTTP(OTEL_OTLP_HTTP_ENDPOINT, map[string]string{
+		"Authorization": OTEL_OTLP_HTTP_HEADERS,
+		"Stream-Name":   OTEL_OTLP_HTTP_STREAM_NAME,
+	})
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			fmt.Println("Error shutting down tracer provider: ", err)
+		}
+	}()
 
 	// Set Gin to release mode
 	gin.SetMode(gin.ReleaseMode)

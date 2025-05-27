@@ -1,11 +1,12 @@
 package ipdb
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"net"
 	"sync"
 
+	"github.com/kofj/ipi/pkg/common"
 	"github.com/oschwald/geoip2-golang"
 )
 
@@ -33,7 +34,10 @@ func Singleton() (err error) {
 	return
 }
 
-func City(ip string) (city *geoip2.City, err error) {
+func City(ctx context.Context, ip string) (city *geoip2.City, err error) {
+	_, span := common.Tracer.Start(ctx, "GeoCity")
+	defer span.End()
+
 	if cityReader == nil {
 		err = errors.New("IPDB not initialized")
 		return
@@ -46,7 +50,10 @@ func City(ip string) (city *geoip2.City, err error) {
 	return cityReader.City(ipNet)
 }
 
-func ASN(ip string) (asn *geoip2.ASN, err error) {
+func ASN(ctx context.Context, ip string) (asn *geoip2.ASN, err error) {
+	_, span := common.Tracer.Start(ctx, "GeoASN")
+	defer span.End()
+
 	if asnReader == nil {
 		err = errors.New("IPDB not initialized")
 		return
@@ -56,10 +63,6 @@ func ASN(ip string) (asn *geoip2.ASN, err error) {
 		err = errors.New("invalid IP address")
 		return
 	}
-
-	isp, err := asnReader.ISP(ipNet)
-	fmt.Println(isp)
-	fmt.Println(err)
 
 	return asnReader.ASN(ipNet)
 }
