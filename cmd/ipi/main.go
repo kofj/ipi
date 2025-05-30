@@ -15,6 +15,25 @@ import (
 
 var router = gin.New()
 
+var formatter = func(p gin.LogFormatterParams) string {
+	// nginx style log format
+	return fmt.Sprintf(
+		"%s - [%s] \"%s %s %s\" %d %s \"%s\" \"%d\" \"%s\" \"%s\" \n",
+		p.ClientIP,
+		p.TimeStamp.Format("02/Jan/2006:15:04:05 -0700"),
+		p.Method,
+		p.Path,
+		p.Request.Proto,
+		p.StatusCode,
+		p.Latency,
+		p.Request.UserAgent(),
+		p.BodySize,
+		// otel trace ID
+		p.Request.Header.Get("traceparent"),
+		p.Request.Header.Get("tracestate"),
+	)
+}
+
 func init() {
 	router.LoadHTMLGlob("templates/*")
 
@@ -34,9 +53,15 @@ func init() {
 	// Set Gin to release mode
 	gin.SetMode(gin.ReleaseMode)
 
+	var conf = gin.LoggerConfig{
+		Formatter: formatter,
+		Output:    os.Stdout,              // Log to standard output
+		SkipPaths: []string{"/public/.*"}, // Skip logging for static files
+	}
+
 	// Initialize the router
 	router.Use(gin.Recovery())
-	router.Use(gin.Logger())
+	router.Use(gin.LoggerWithConfig(conf))
 	router.Use(otelgin.Middleware("ipi-server"))
 
 	// Load the routes

@@ -22,7 +22,7 @@ func IpiPage(ctx *gin.Context) {
 	uaInfo := useragent.Parse(ua)
 	if uaInfo.IsUnknown() {
 		format = "json"
-		logrus.WithField("ua", ua).Warn("unknown user agent")
+		// logrus.WithField("ua", ua).Warn("unknown user agent")
 	}
 
 	var ip = ctx.Param("ip")
@@ -59,11 +59,11 @@ func IpiPage(ctx *gin.Context) {
 		Number:       asn.AutonomousSystemNumber,
 		Organization: asn.AutonomousSystemOrganization,
 	}
-	logrus.WithField("asn", asn).Warn("asn")
+	// logrus.WithField("asn", asn).Warn("asn")
 
 	var locale = "en"
 	var location *models.Location
-	logrus.WithField("locale", city.Location).Warn("locale")
+	// logrus.WithField("locale", city.Location).Warn("locale")
 	if city.Location.Latitude != 0 || city.Location.Longitude != 0 {
 		location = &models.Location{
 			City:      city.City.Names[locale],
