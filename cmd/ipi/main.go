@@ -10,6 +10,7 @@ import (
 	"github.com/kofj/ipi/pkg/ipdb"
 	"github.com/kofj/ipi/pkg/otel"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 var router = gin.New()
@@ -22,7 +23,7 @@ func init() {
 	var OTEL_OTLP_HTTP_STREAM_NAME = os.Getenv("OTEL_OTLP_HTTP_STREAM_NAME")
 	var tp = otel.InitTracerHTTP(OTEL_OTLP_HTTP_ENDPOINT, map[string]string{
 		"Authorization": OTEL_OTLP_HTTP_HEADERS,
-		"Stream-Name":   OTEL_OTLP_HTTP_STREAM_NAME,
+		"stream-name":   OTEL_OTLP_HTTP_STREAM_NAME,
 	})
 	defer func() {
 		if err := tp.Shutdown(context.Background()); err != nil {
@@ -36,6 +37,7 @@ func init() {
 	// Initialize the router
 	router.Use(gin.Recovery())
 	router.Use(gin.Logger())
+	router.Use(otelgin.Middleware("ipi-server"))
 
 	// Load the routes
 	loadRoutes(router)

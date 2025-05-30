@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kofj/ipi/pkg/common"
 	"github.com/kofj/ipi/pkg/ipdb"
 	"github.com/kofj/ipi/pkg/models"
 	"github.com/mileusna/useragent"
@@ -17,8 +16,6 @@ var ErrorNotFoundOrInvlid = errors.New("not found or invalid ip")
 
 func IpiPage(ctx *gin.Context) {
 	var rctx = ctx.Request.Context()
-	childCtx, span := common.Tracer.Start(rctx, "IpiPage")
-	defer span.End()
 
 	var format = "html"
 	var ua = ctx.Request.UserAgent()
@@ -32,7 +29,7 @@ func IpiPage(ctx *gin.Context) {
 	if ip == "" {
 		ip = ctx.ClientIP()
 	}
-	city, err := ipdb.City(childCtx, ip)
+	city, err := ipdb.City(rctx, ip)
 	if err != nil {
 		errResp(ctx, ip, format, err)
 		logrus.WithError(err).Error("ipdb query failed")
@@ -46,7 +43,7 @@ func IpiPage(ctx *gin.Context) {
 		return
 	}
 
-	asn, err := ipdb.ASN(childCtx, ip)
+	asn, err := ipdb.ASN(rctx, ip)
 	if err != nil {
 		errResp(ctx, ip, format, err)
 		logrus.WithError(err).Error("ipdb query failed")

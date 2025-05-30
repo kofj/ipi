@@ -35,7 +35,7 @@ func Singleton() (err error) {
 }
 
 func City(ctx context.Context, ip string) (city *geoip2.City, err error) {
-	_, span := common.Tracer.Start(ctx, "GeoCity")
+	_, span := common.Tracer.Start(ctx, "ipi:ipdb:GeoCity")
 	defer span.End()
 
 	if cityReader == nil {
@@ -51,7 +51,7 @@ func City(ctx context.Context, ip string) (city *geoip2.City, err error) {
 }
 
 func ASN(ctx context.Context, ip string) (asn *geoip2.ASN, err error) {
-	_, span := common.Tracer.Start(ctx, "GeoASN")
+	_, span := common.Tracer.Start(ctx, "ipi:ipdb:GeoASN")
 	defer span.End()
 
 	if asnReader == nil {
